@@ -1,7 +1,9 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "generate": "node ./seeds/generate.js",
+    "seed": "node ./seeds/seed.js"
   },
   "dependencies": {
     "argon2": "^0.44.0",
