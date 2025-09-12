@@ -1,5 +1,6 @@
 import getPool from "../databases/pool.js";
 import argon2 from "argon2";
+import { putStringifier, findUser } from "../functions/routeFunc.js";
 
 const getUsers = async (_, res) => {
   try {
@@ -74,10 +75,31 @@ const createUser = async (req, res) => {
 
 const changeUser = async (req, res) => {
   try {
-    const target = Number(req.params.id);
     const pool = await getPool();
-    const modifyUser = await pool.query(`
-      UPDATE \`users\` SET `); // <-------------------- Continue from here
+    const target = Number(req.params.id);
+    const found = await findUser(target);
+    if (found) {
+      const { email, password, surname, name, role } = req.body;
+      const jsonValues = {
+        email: email,
+        password: password,
+        surname: surname,
+        name: name,
+        role: role,
+      };
+      const transformedData = putStringifier(jsonValues);
+      const command = `UPDATE \`users\` SET ${transformedData[0]} WHERE users.id_user = ${target};`;
+      const modifyUser = await pool.query(command, transformedData[1]); // Has columns with "keyX = ?", and secure array of data later
+      if (modifyUser) {
+        res.status(200).json({
+          message: `The User 'users.id_user = ${target}' got modified`,
+        });
+      } else {
+        res.stauts(500).json({ message: "Failed to modify the User" });
+      }
+    } else {
+      res.status(404).json({ message: "User doesn't exist" });
+    }
   } catch (err) {
     console.error(err);
     res
