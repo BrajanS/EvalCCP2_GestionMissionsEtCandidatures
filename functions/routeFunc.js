@@ -6,11 +6,10 @@ function putStringifier(jsonValues) {
       return value !== undefined && value !== "";
     })
   );
-  const stringifyingValues = `${Object.keys(filterValues)
-    .map((key) => {
-      return `\`${key}\` = ?`;
-    })
-    .join(", ")}`;
+  // prettier-ignore
+  const stringifyingValues = `${Object.keys(filterValues).map((key) => {
+    return `\`${key}\` = ?`;
+  }).join(", ")}`;
 
   const valuesArray = Object.values(filterValues);
   return [stringifyingValues, valuesArray];

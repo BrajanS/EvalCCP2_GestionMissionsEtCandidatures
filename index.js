@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express from "express";
-import getPool from "./databases/pool.js";
 import cookieParser from "cookie-parser";
 import router from "./routes/router.js";
 
