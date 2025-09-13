@@ -47,7 +47,7 @@ route.delete("/deleteUser/:id", removeUser);
 // #endregion USER
 // #region MISSION
 route.get("/missions", getMissions);
-route.post("/postMission", createMission);
+route.post("/postMission", authMiddleware, createMission);
 route.put("/changeMission/:id", changeMission);
 route.delete("/deleteMission/:id", deleteMission);
 // #endregion MISSION

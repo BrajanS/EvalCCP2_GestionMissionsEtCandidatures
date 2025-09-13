@@ -1,6 +1,28 @@
 import getPool from "../databases/pool.js";
 import { findXTarget, putStringifier } from "../functions/routeFunc.js";
 
+/**
+ * @module candidateController
+ * : All controller functions for Candidate's routes
+ */
+
+/**
+ * -> Request from Express
+ * @typedef {Object} Req
+ * -> Request from Express
+ * @typedef {Object} Res
+ * -> Promise without Returns to Caller
+ * @typedef {Promise<void>} Pvoid
+ * -> Ignored ("_" -> Not used) Request from Express
+ * @typedef {Object} ignoredReq
+ */
+
+/**
+ * Get all candidates
+ * @param {ignoredReq} - Request
+ * @param {Res} - Response of All candidates
+ * @returns {Pvoid} - Returns Nothing
+ */
 const getAllCandidates = async (_, res) => {
   try {
     const pool = await getPool();
@@ -17,6 +39,12 @@ const getAllCandidates = async (_, res) => {
   }
 };
 
+/**
+ * List all missions from id_user
+ * @param {Req}- Request
+ * @param {Res} - Response getting all missions
+ * @returns {Pvoid} - Returns Nothing
+ */
 const getUserCandidate = async (req, res) => {
   try {
     const pool = await getPool();
@@ -48,6 +76,12 @@ const getUserCandidate = async (req, res) => {
   }
 };
 
+/**
+ * List all candidates from id_mission
+ * @param {Req}- Request
+ * @param {Res} - Response of getting candidates
+ * @returns {Pvoid} - Returns Nothing
+ */
 const getMissionCandidate = async (req, res) => {
   try {
     const pool = await getPool();
@@ -80,6 +114,12 @@ const getMissionCandidate = async (req, res) => {
   }
 };
 
+/**
+ * Make candidate
+ * @param {Req}- Request
+ * @param {Res} - Response of creating
+ * @returns {Pvoid} - Returns Nothing
+ */
 const postCandidate = async (req, res) => {
   try {
     const pool = await getPool();
@@ -105,6 +145,12 @@ const postCandidate = async (req, res) => {
   }
 };
 
+/**
+ * Change candidate's status from id
+ * @param {Req}- Request with `params.id`
+ * @param {Res} - Response for changing a user
+ * @returns {Pvoid} - Returns Nothing
+ */
 const candidateStatus = async (req, res) => {
   try {
     const pool = await getPool();
@@ -136,6 +182,12 @@ const candidateStatus = async (req, res) => {
   }
 };
 
+/**
+ * Remove candidate from id
+ * @param {Req}- Request with `params.id`
+ * @param {Res} - Response deletion
+ * @returns {Pvoid} - Returns Nothing
+ */
 const deleteCandidate = async (req, res) => {
   try {
     const pool = await getPool();

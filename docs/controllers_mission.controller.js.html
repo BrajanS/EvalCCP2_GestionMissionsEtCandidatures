@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/mission.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/mission.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import getPool from "../databases/pool.js";
+import { findXTarget, putStringifier } from "../functions/routeFunc.js";
+
+/**
+ * @module missionController
+ * : All controller functions for Mission's routes
+ */
+
+/**
+ * -> Request from Express
+ * @typedef {Object} Req
+ * -> Request from Express
+ * @typedef {Object} Res
+ * -> Promise without Returns to Caller
+ * @typedef {Promise&lt;void>} Pvoid
+ * -> Ignored ("_" -> Not used) Request from Express
+ * @typedef {Object} ignoredReq
+ */
+
+/**
+ * Get all missions
+ * @param {ignoredReq} - Request
+ * @param {Res} - Response of All users
+ * @returns {Pvoid} - Returns Nothing
+ */
+const getMissions = async (_, res) => {
+  try {
+    const pool = await getPool();
+    const missions = await pool.query(`
+        SELECT * FROM \`mission\`;`);
+    if (missions) {
+      res.status(200).json({ missions: missions[0] });
+    } else {
+      res.status(400).json({ message: "Couldn't find missions" });
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Something went wrong while searching missions" });
+  }
+};
+
+/**
+ * Create a mission
+ * @param {Req}- Request
+ * @param {Res} - Response managing to create a mission
+ * @returns {Pvoid} - Returns Nothing
+ */
+const createMission = async (req, res) => {
+  try {
+    const pool = await getPool();
+    const { title, description, date, fk_association } = req.body;
+    const verifData = [title, description, date, fk_association];
+    // prettier-ignore
+    if (verifData.some((data) => data === undefined || data === null || data === "")) {
+      res.status(400).json({ message: "Some fields are empty" });
+    } else {
+      const creatingMission = await pool.query(
+        `INSERT INTO \`mission\` (title, \`description\`, date, \`fk_association\`) VALUES (?,?,?,?)`,
+        [title, description, date, fk_association]
+      );
+      if (creatingMission) {
+        res.status(201).json({ message: "Mission was successfully created !" });
+      } else {
+        res.status(500).json({ message: "Mission failed to be created" });
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Something went wrong while creating mission" });
+  }
+};
+
+/**
+ * Change a mission
+ * @param {Req}- Request
+ * @param {Res} - Response changed mission
+ * @returns {Pvoid} - Returns Nothing
+ */
+const changeMission = async (req, res) => {
+  try {
+    const pool = await getPool();
+    const target = Number(req.params.id);
+    const found = await findXTarget(target, "mission");
+    if (found) {
+      const { title, description, date, fk_association } = req.body;
+      const jsonValues = {
+        title: title,
+        description: description,
+        date: date,
+        fk_association: fk_association,
+      };
+      const transformedData = putStringifier(jsonValues);
+      const command = `UPDATE \`mission\` SET ${transformedData[0]} WHERE mission.id_mission = ${target};`;
+      const modifyMission = await pool.query(command, transformedData[1]);
+      if (modifyMission) {
+        res.status(200).json({ message: "Modified mission successfully" });
+      } else {
+        res.status(400).json({ message: "Modifying mission failed" });
+      }
+    } else {
+      res.status(404).json({ message: "User doesn't exist" });
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Something went wrong while changing mission" });
+  }
+};
+
+/**
+ * Create a mission
+ * @param {Req}- Request
+ * @param {Res} - Response of deleting a mission
+ * @returns {Pvoid} - Returns Nothing
+ */
+
+const deleteMission = async (req, res) => {
+  try {
+    const pool = await getPool();
+    const target = Number(req.params.id);
+    const found = await findXTarget(target, "mission");
+    if (found) {
+      const deleteMission = await pool.query(`
+      DELETE FROM mission WHERE mission.id_mission = ${target}`);
+      if (deleteMission) {
+        res.status(204).json({
+          message: `Successfully delete mission id_mission=${target}`,
+        });
+      } else {
+        res.status(500).json({ message: "Failed to delete mission" });
+      }
+    } else {
+      res.status(404).json({ message: "User doesn't exist" });
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Something went wrong while deleting mission" });
+  }
+};
+
+export { getMissions, createMission, changeMission, deleteMission };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="candidateController%250D_%2520All%2520controller%2520functions%2520for%2520Candidate_s%2520routesmodule_.html">candidateController: All controller functions for Candidate's routes</a></li><li><a href="missionController%250D_%2520All%2520controller%2520functions%2520for%2520Mission_s%2520routesmodule_.html">missionController: All controller functions for Mission's routes</a></li><li><a href="userController%250D_%2520All%2520controller%2520functions%2520for%2520User_s%2520routesmodule_.html">userController: All controller functions for User's routes</a></li></ul><h3>Global</h3><ul><li><a href="global.html#associationVerif">associationVerif</a></li><li><a href="global.html#authMiddleware">authMiddleware</a></li><li><a href="global.html#loginValidatorMiddleware">loginValidatorMiddleware</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Sep 13 2025 16:14:05 GMT+0200 (heure d’été d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
