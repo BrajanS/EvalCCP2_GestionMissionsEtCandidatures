@@ -15,13 +15,16 @@ function putStringifier(jsonValues) {
   return [stringifyingValues, valuesArray];
 }
 
-async function findUser(target) {
+async function findXTarget(target, tableName) {
   const pool = await getPool();
-  const searchUser = await pool.query(
-    `SELECT \`users\`.email FROM \`users\` WHERE \`users\`.id_user = ${target}`
-  );
-  const boolConverter = searchUser[0].length === 0 ? false : true;
+  // prettier-ignore
+  const searchX = tableName === "candidate"
+    ? await pool.query(`SELECT * FROM \`candidate\` WHERE candidate.id_candidate = ?`, [target])
+    : tableName === "mission"
+    ? await pool.query(`SELECT * FROM \`mission\` WHERE mission.id_mission = ?`, [target])
+    : await pool.query(`SELECT \`users\`.email FROM \`users\` WHERE \`users\`.id_user = ?`, [target]);
+  const boolConverter = searchX[0].length === 0 ? false : true;
   return boolConverter;
 }
 
-export { putStringifier, findUser };
+export { putStringifier, findXTarget };
