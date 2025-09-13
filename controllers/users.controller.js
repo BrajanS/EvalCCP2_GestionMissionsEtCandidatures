@@ -1,12 +1,13 @@
 import getPool from "../databases/pool.js";
 import argon2 from "argon2";
-import { putStringifier, findUser } from "../functions/routeFunc.js";
+import jwt from "jsonwebtoken";
+import { putStringifier, findXTarget } from "../functions/routeFunc.js";
 
 const getUsers = async (_, res) => {
   try {
     const pool = await getPool();
     const users = await pool.query(`
-        SELECT * FROM \`users\`;`);
+        SELECT \`users\`.id_user, \`users\`.email, \`users\`.surname, \`users\`.name, \`users\`.role FROM \`users\`;`);
     if (users) {
       res.status(200).json({ users: users[0] });
     } else {
@@ -25,7 +26,7 @@ const getUser = async (req, res) => {
     const target = Number(req.params.id);
     const pool = await getPool();
     const user = await pool.query(`
-        SELECT * FROM users WHERE users.id_user = ${target};`);
+        SELECT \`users\`.id_user, \`users\`.email, \`users\`.surname, \`users\`.name, \`users\`.role FROM users WHERE users.id_user = ${target};`);
     if (user[0].length > 0) {
       res.status(200).json({ user: user[0] });
     } else {
@@ -39,13 +40,12 @@ const getUser = async (req, res) => {
   }
 };
 
-const createUser = async (req, res) => {
+const registerUser = async (req, res) => {
   try {
     const { email, password, surname, name, role } = req.body;
     const hashedPswd = await argon2.hash(password, { type: argon2.argon2id });
     const verifData = [email, hashedPswd, surname, name, role];
     const pool = await getPool();
-
     // prettier-ignore
     if (hashedPswd) {
       // prettier-ignore
@@ -54,7 +54,7 @@ const createUser = async (req, res) => {
       } else {
         const creatingUser = await pool.query(
           `INSERT INTO \`users\` (email, \`password\`, surname, \`name\`, \`role\`) VALUES (?,?,?,?,?)`,
-          [email, hashedPswd, surname, name, role]
+          [email.toLowerCase(), hashedPswd, surname, name, role]
         );
         if (creatingUser) {
           res.status(201).json({ message: "User has been created" });
@@ -73,11 +73,56 @@ const createUser = async (req, res) => {
   }
 };
 
+const loginUser = async (req, res) => {
+  try {
+    const pool = await getPool();
+    const { email, password } = req.body;
+    const verifData = [email, password];
+    // prettier-ignore
+    if (verifData.some((data) => data === undefined || data === null || data === "")) {
+      res.status(400).json({ message: "Some fields are empty" });
+    } else {
+      const [exists] = await pool.query(
+        `SELECT \`users\`.id_user, \`users\`.email, \`users\`.password, \`users\`.role FROM \`users\` WHERE \`users\`.email = ?;`,
+        email.trim().toLowerCase()
+      );
+      if (exists.length > 0) {
+        // prettier-ignore
+        const argonVerif = await argon2.verify(exists[0].password, password);
+        console.info("ArgonVerif:", argonVerif);
+        if (argonVerif) {
+          // prettier-ignore
+          // Token
+          const token = jwt.sign({ id: exists[0].id_user, role: exists[0].role }, process.env.JWT_SECRET, { expiresIn: `1h` });
+          // Cookie
+          res.cookie("jwt", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 1 * 60 * 60 * 1000, // 1h
+          });
+          // prettier-ignore
+          res.status(200).send(`Logged successfully into ${JSON.stringify(exists[0].email)}`);
+        } else {
+          res
+            .status(401)
+            .send("Error 401: Unauthorized access ! Verification failed");
+        }
+      } else {
+        res.status(404).json({message: "This user doesn't exist ! Please login into a existing User or register first."});
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json("Something went wrong when logging-In");
+  }
+};
+
 const changeUser = async (req, res) => {
   try {
     const pool = await getPool();
     const target = Number(req.params.id);
-    const found = await findUser(target);
+    const found = await findXTarget(target);
     if (found) {
       const { email, password, surname, name, role } = req.body;
       const jsonValues = {
@@ -128,4 +173,28 @@ const removeUser = async (req, res) => {
   }
 };
 
-export { getUsers, getUser, createUser, changeUser, removeUser };
+const logoutUser = async (_, res) => {
+  try {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    });
+    res.status(200).send("Logged out");
+  } catch (error) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Something went wrong while logging-Out..." });
+  }
+};
+
+export {
+  getUsers,
+  getUser,
+  registerUser,
+  changeUser,
+  removeUser,
+  loginUser,
+  logoutUser,
+};

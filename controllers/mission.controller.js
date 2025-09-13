@@ -1,5 +1,5 @@
 import getPool from "../databases/pool.js";
-import { putStringifier } from "../functions/routeFunc.js";
+import { findXTarget, putStringifier } from "../functions/routeFunc.js";
 
 const getMissions = async (_, res) => {
   try {
@@ -50,20 +50,25 @@ const changeMission = async (req, res) => {
   try {
     const pool = await getPool();
     const target = Number(req.params.id);
-    const { title, description, date, fk_association } = req.body;
-    const jsonValues = {
-      title: title,
-      description: description,
-      date: date,
-      fk_association: fk_association,
-    };
-    const transformedData = putStringifier(jsonValues);
-    const command = `UPDATE \`mission\` SET ${transformedData[0]} WHERE mission.id_mission = ${target};`;
-    const modifyMission = await pool.query(command, transformedData[1]);
-    if (modifyMission) {
-      res.status(200).json({ message: "Modified mission successfully" });
+    const found = await findXTarget(target, "mission");
+    if (found) {
+      const { title, description, date, fk_association } = req.body;
+      const jsonValues = {
+        title: title,
+        description: description,
+        date: date,
+        fk_association: fk_association,
+      };
+      const transformedData = putStringifier(jsonValues);
+      const command = `UPDATE \`mission\` SET ${transformedData[0]} WHERE mission.id_mission = ${target};`;
+      const modifyMission = await pool.query(command, transformedData[1]);
+      if (modifyMission) {
+        res.status(200).json({ message: "Modified mission successfully" });
+      } else {
+        res.status(400).json({ message: "Modifying mission failed" });
+      }
     } else {
-      res.status(400).json({ message: "Modifying mission failed" });
+      res.status(404).json({ message: "User doesn't exist" });
     }
   } catch (err) {
     console.error(err);
@@ -77,14 +82,19 @@ const deleteMission = async (req, res) => {
   try {
     const pool = await getPool();
     const target = Number(req.params.id);
-    const deleteMission = await pool.query(`
+    const found = await findXTarget(target, "mission");
+    if (found) {
+      const deleteMission = await pool.query(`
       DELETE FROM mission WHERE mission.id_mission = ${target}`);
-    if (deleteMission) {
-      res
-        .status(204)
-        .json({ message: `Successfully delete mission id_mission=${target}` });
+      if (deleteMission) {
+        res.status(204).json({
+          message: `Successfully delete mission id_mission=${target}`,
+        });
+      } else {
+        res.status(500).json({ message: "Failed to delete mission" });
+      }
     } else {
-      res.status(500).json({ message: "Failed to delete mission" });
+      res.status(404).json({ message: "User doesn't exist" });
     }
   } catch (err) {
     console.error(err);
