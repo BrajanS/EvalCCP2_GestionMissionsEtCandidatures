@@ -1,4 +1,18 @@
-import getPool from "../databases/pool.js";
+/**
+ * -> Request from Express
+ * @typedef {Object} Req
+ * -> Request from Express
+ * @typedef {Object} Res
+ * -> Promise without Returns to Caller
+ * @typedef {Promise<void>} Pvoid
+ */
+
+/**
+ * Let's you pass to the route if your role is exactly "association" only.
+ * @param {Req}- Request
+ * @param {Res} - Response of verifying roles
+ * @returns {Pvoid} - Returns Nothing
+ */
 
 const associationVerif = async (req, res, next) => {
   try {

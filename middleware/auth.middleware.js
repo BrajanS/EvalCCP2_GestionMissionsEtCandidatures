@@ -1,6 +1,16 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
+/**
+ * Authentication middleware.
+ * Verifies JWT token, if authorized saves it in: `req.user`.
+ *
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response
+ * @param {Object} next - Next middleware callback
+ * @returns {void}
+ */
+
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies.jwt;

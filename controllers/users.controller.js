@@ -3,6 +3,28 @@ import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { putStringifier, findXTarget } from "../functions/routeFunc.js";
 
+/**
+ * @module userController
+ * : All controller functions for User's routes
+ */
+
+/**
+ * -> Request from Express
+ * @typedef {Object} Req
+ * -> Request from Express
+ * @typedef {Object} Res
+ * -> Promise without Returns to Caller
+ * @typedef {Promise<void>} Pvoid
+ * -> Ignored ("_" -> Not used) Request from Express
+ * @typedef {Object} ignoredReq
+ */
+
+/**
+ * Get all users
+ * @param {ignoredReq} - Request
+ * @param {Res} - Response of All users
+ * @returns {Pvoid} - Returns Nothing
+ */
 const getUsers = async (_, res) => {
   try {
     const pool = await getPool();
@@ -21,6 +43,12 @@ const getUsers = async (_, res) => {
   }
 };
 
+/**
+ * Get user from id
+ * @param {Req}- Request with `params.id`
+ * @param {Res} - Response of chosen User
+ * @returns {Pvoid} - Returns Nothing
+ */
 const getUser = async (req, res) => {
   try {
     const target = Number(req.params.id);
@@ -40,6 +68,12 @@ const getUser = async (req, res) => {
   }
 };
 
+/**
+ * Make user
+ * @param {Req}- Request
+ * @param {Res} - Response of creating a user
+ * @returns {Pvoid} - Returns Nothing
+ */
 const registerUser = async (req, res) => {
   try {
     const { email, password, surname, name, role } = req.body;
@@ -73,6 +107,12 @@ const registerUser = async (req, res) => {
   }
 };
 
+/**
+ * Log-in to user
+ * @param {Req}- Request
+ * @param {Res} - Response of logging in
+ * @returns {Pvoid} - Returns Nothing
+ */
 const loginUser = async (req, res) => {
   try {
     const pool = await getPool();
@@ -118,6 +158,12 @@ const loginUser = async (req, res) => {
   }
 };
 
+/**
+ * Change user from id
+ * @param {Req}- Request with `params.id`
+ * @param {Res} - Response for changing a user
+ * @returns {Pvoid} - Returns Nothing
+ */
 const changeUser = async (req, res) => {
   try {
     const pool = await getPool();
@@ -153,6 +199,12 @@ const changeUser = async (req, res) => {
   }
 };
 
+/**
+ * Remove user from id
+ * @param {Req}- Request with `params.id`
+ * @param {Res} - Response deletion
+ * @returns {Pvoid} - Returns Nothing
+ */
 const removeUser = async (req, res) => {
   try {
     const target = Number(req.params.id);
@@ -173,6 +225,12 @@ const removeUser = async (req, res) => {
   }
 };
 
+/**
+ * Log-out user
+ * @param {ignoredReq}- Request
+ * @param {Res} - Response for clearing Cookies containing the token
+ * @returns {Pvoid} - Returns Nothing
+ */
 const logoutUser = async (_, res) => {
   try {
     res.clearCookie("jwt", {

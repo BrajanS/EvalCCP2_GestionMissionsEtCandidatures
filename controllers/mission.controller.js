@@ -1,6 +1,28 @@
 import getPool from "../databases/pool.js";
 import { findXTarget, putStringifier } from "../functions/routeFunc.js";
 
+/**
+ * @module missionController
+ * : All controller functions for Mission's routes
+ */
+
+/**
+ * -> Request from Express
+ * @typedef {Object} Req
+ * -> Request from Express
+ * @typedef {Object} Res
+ * -> Promise without Returns to Caller
+ * @typedef {Promise<void>} Pvoid
+ * -> Ignored ("_" -> Not used) Request from Express
+ * @typedef {Object} ignoredReq
+ */
+
+/**
+ * Get all missions
+ * @param {ignoredReq} - Request
+ * @param {Res} - Response of All users
+ * @returns {Pvoid} - Returns Nothing
+ */
 const getMissions = async (_, res) => {
   try {
     const pool = await getPool();
@@ -19,6 +41,12 @@ const getMissions = async (_, res) => {
   }
 };
 
+/**
+ * Create a mission
+ * @param {Req}- Request
+ * @param {Res} - Response managing to create a mission
+ * @returns {Pvoid} - Returns Nothing
+ */
 const createMission = async (req, res) => {
   try {
     const pool = await getPool();
@@ -46,6 +74,12 @@ const createMission = async (req, res) => {
   }
 };
 
+/**
+ * Change a mission
+ * @param {Req}- Request
+ * @param {Res} - Response changed mission
+ * @returns {Pvoid} - Returns Nothing
+ */
 const changeMission = async (req, res) => {
   try {
     const pool = await getPool();
@@ -77,6 +111,13 @@ const changeMission = async (req, res) => {
       .json({ message: "Something went wrong while changing mission" });
   }
 };
+
+/**
+ * Create a mission
+ * @param {Req}- Request
+ * @param {Res} - Response of deleting a mission
+ * @returns {Pvoid} - Returns Nothing
+ */
 
 const deleteMission = async (req, res) => {
   try {
