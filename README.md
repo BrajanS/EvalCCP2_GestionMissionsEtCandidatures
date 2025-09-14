@@ -2,6 +2,9 @@
 
 ## <ins>Présentation:</ins>
 
+Ce projet sert à faire une application permettant de gérer des missions et les candidatures des utilisateurs.
+Le project utilise les technologies suivant: Node.js + Express côté serveur, avec une base de données SQL pour stocker et organiser les données liées aux utilisateurs, aux missions et aux candidatures.
+
 ## <ins>Instructions:</ins>
 
 - Ouvrir le CMD en Administrateur puis taper: "**net start mariadb**"
@@ -19,3 +22,5 @@
 Car elle est la plus strict et typer, donc elle empêchera le mieux les erreurs accidentel lors du CCP2, ainsi que les interfaces SQL ont souvent une visualisation en Diagram pour les Tables de données.
 
 ## <ins>Information bonus:</ins>
+
+. . .
